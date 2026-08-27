@@ -24,7 +24,7 @@ class ErrorsViewModel extends ChangeNotifier {
   String? _levelFilter; // null = все
   String? get levelFilter => _levelFilter;
 
-  void Function()? _unsubscribe;
+  Future<void> Function()? _unsubscribe;
 
   Future<void> load() async {
     _isLoading = true;
@@ -43,7 +43,7 @@ class ErrorsViewModel extends ChangeNotifier {
   Future<void> setBase(String base) async {
     if (base == _selectedBase) return;
     _selectedBase = base;
-    await _unsubscribe?.call();
+    if (_unsubscribe != null) await _unsubscribe!.call();
     _unsubscribe = null;
     await load();
     await subscribeRealtime();
@@ -55,7 +55,7 @@ class ErrorsViewModel extends ChangeNotifier {
   }
 
   Future<void> subscribeRealtime() async {
-    await _unsubscribe?.call();
+    if (_unsubscribe != null) await _unsubscribe!.call();
     _unsubscribe = await _repo.subscribe(_selectedBase, (entry) {
       // вставка в начало (новые сверху), дедупликация уже в repo
       _errors = [entry, ..._errors];
@@ -73,7 +73,7 @@ class ErrorsViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _unsubscribe?.call();
+    if (_unsubscribe != null) _unsubscribe!.call();
     super.dispose();
   }
 }

@@ -5,7 +5,7 @@ part 'app_user.g.dart';
 
 /// Step 1: Domain Model (skill)
 @freezed
-class AppUser with _$AppUser {
+abstract class AppUser with _$AppUser {
   const factory AppUser({
     required String id,
     required String email,

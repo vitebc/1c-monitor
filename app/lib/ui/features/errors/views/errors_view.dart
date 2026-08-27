@@ -197,8 +197,8 @@ class _ErrorsViewState extends State<ErrorsView> {
                   if (isLarge) {
                     setState(() => _selectedId = e.id);
                   } else {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => ErrorDetail(error: e)),
+                    Navigator.of(context).push<void>(
+                      MaterialPageRoute<void>(builder: (_) => ErrorDetail(error: e)),
                     );
                   }
                 },

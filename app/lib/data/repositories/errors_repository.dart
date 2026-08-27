@@ -45,7 +45,7 @@ class ErrorsRepository {
   }
 
   /// Подписка Realtime — возвращает cancel функцию
-  Future<void Function()> subscribe(String base, void Function(ErrorEntry) onNew) async {
+  Future<Future<void> Function()> subscribe(String base, void Function(ErrorEntry) onNew) async {
     _lastSeenId ??= _cacheService?.getLastSeenId(base);
     final channel = _service.subscribeErrors(
       base: base,
@@ -58,7 +58,7 @@ class ErrorsRepository {
         onNew(entry);
       },
     );
-    return () async => await _service.client.removeChannel(channel);
+    return () => _service.client.removeChannel(channel);
   }
 
   Future<void> markRead(String id) async {

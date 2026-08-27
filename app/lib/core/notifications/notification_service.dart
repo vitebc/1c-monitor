@@ -17,7 +17,7 @@ class NotificationService {
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings();
-    await _local.initialize(const InitializationSettings(android: androidInit, iOS: iosInit));
+    await _local.initialize(settings: const InitializationSettings(android: androidInit, iOS: iosInit));
 
     // Android 13+ пермишен
     await _local.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
@@ -38,17 +38,17 @@ class NotificationService {
 
     // foreground: показываем локально
     FirebaseMessaging.onMessage.listen((msg) async {
-      final title = msg.notification?.title ?? msg.data['event_name'] ?? 'Новая ошибка';
-      final body = msg.notification?.body ?? msg.data['base'] ?? '';
+      final title = msg.notification?.title ?? (msg.data['event_name'] as String?) ?? 'Новая ошибка';
+      final body = msg.notification?.body ?? (msg.data['base'] as String?) ?? '';
       await _local.show(
-        msg.hashCode,
-        title,
-        body,
-        const NotificationDetails(
+        id: msg.hashCode,
+        title: title,
+        body: body,
+        notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails('errors', 'Ошибки 1С', importance: Importance.high),
           iOS: DarwinNotificationDetails(),
         ),
-        payload: msg.data['error_id'],
+        payload: msg.data['error_id'] as String?,
       );
     });
   }

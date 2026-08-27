@@ -6,7 +6,7 @@ part 'error.g.dart';
 /// Чистая доменная модель ошибки — 1 строка = 6 полей из ТЗ 1С + тех-поля.
 /// Skill step 1: Define Domain Models (immutable, freezed).
 @freezed
-class ErrorEntry with _$ErrorEntry {
+abstract class ErrorEntry with _$ErrorEntry {
   const factory ErrorEntry({
     required String id,
     required String eventName, // <ИмяСобытия>

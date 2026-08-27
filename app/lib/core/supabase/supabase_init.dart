@@ -8,5 +8,6 @@ Future<void> initSupabase() async {
     // flutter run --dart-define=SUPABASE_URL=http://localhost:54321 --dart-define=SUPABASE_ANON_KEY=xxx
     throw StateError('SUPABASE_URL / SUPABASE_ANON_KEY не заданы (dart-define)');
   }
+  // ignore: deprecated_member_use — publishableKey в новых версиях, anonKey пока работает
   await Supabase.initialize(url: url, anonKey: anonKey);
 }

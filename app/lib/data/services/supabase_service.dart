@@ -15,14 +15,10 @@ class SupabaseService {
     int limit = 50,
     String? level,
   }) async {
-    var query = _client
-        .from('errors')
-        .select()
-        .eq('base', base)
-        .order('created_at', ascending: false)
-        .limit(limit);
-    if (level != null) query = query.eq('level', level);
-    final rows = await query;
+    final filter = _client.from('errors').select();
+    var builder = filter.eq('base', base);
+    if (level != null) builder = builder.eq('level', level);
+    final rows = await builder.order('created_at', ascending: false).limit(limit);
     return (rows as List).map((e) => ErrorApiModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 

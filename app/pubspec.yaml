@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 0.1.0+1
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.8.0
   flutter: ">=3.24.0"
 
 dependencies:
@@ -13,14 +13,14 @@ dependencies:
   # State / DI (skill: ViewModel = ChangeNotifier, DI через provider)
   provider: ^6.1.2
   # Arch: freezed domain models
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
   # Backend
   supabase_flutter: ^2.8.1
   # Push / local notifications
-  firebase_core: ^3.8.0
-  firebase_messaging: ^15.1.6
-  flutter_local_notifications: ^18.0.1
+  firebase_core: ^4.14.0
+  firebase_messaging: ^16.6.0
+  flutter_local_notifications: ^22.3.0
   # Local cache (last_seen_id, offline queue)
   shared_preferences: ^2.3.3
   hive_flutter: ^1.1.0
@@ -31,9 +31,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   build_runner: ^2.4.13
-  freezed: ^2.4.7
+  freezed: ^4.0.0
   json_serializable: ^6.8.0
   mockito: ^5.4.4
 
