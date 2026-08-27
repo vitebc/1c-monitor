@@ -1,0 +1,38 @@
+# Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+build/
+*.log
+.flutter_version
+.dart_tool/
+
+# Supabase
+.supabase/
+supabase/.branches/
+supabase/.temp/
+
+# Env / secrets
+.env
+.env.local
+supabase/.env
+app/.env
+*.pem
+*.jks
+*.keystore
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# graphify
+graphify-out/
