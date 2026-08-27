@@ -56,8 +56,7 @@ supabase gen types dart --linked  # после изменения схемы
 
 - `flutter-apply-architecture-best-practices` → `.agents/skills/flutter-apply-architecture-best-practices/SKILL.md` — при добавлении/рефакторинге фичи следуй его чек-листу по шагам (Domain Models → Services → Repositories → ViewModel → View → DI → тесты). Не ломай `data/domain/ui` слои, не мешай UI с логикой.
 - `supabase-postgres-best-practices` → `.agents/skills/supabase-postgres-best-practices/SKILL.md` — грузи ПЕРЕД любым изменением в БД: таблицы/колонки, миграции, RLS, индексы, триггеры, `pg_cron/pgmq`, `pg_restore`. Соблюдай порядок приоритетов скилла (query → conn → security → schema).
-
-Второй этап (когда будет первая UI): установить `flutter-build-responsive-layout` — адаптив под десктоп/планшет через `LayoutBuilder`.
+- `flutter-build-responsive-layout` → `.agents/skills/flutter-build-responsive-layout/SKILL.md` — применяй для любой верстки: `LayoutBuilder`+`constraints.maxWidth` (брейкпоинт 600), `ConstrainedBox(maxWidth:800)`+`Center` на десктопе, `Expanded/Flexible` в `Row/Column`. Не лочить ориентацию, не чекать `isTablet`.
 
 ## Конвенции для агента
 
