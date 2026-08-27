@@ -1,14 +1,17 @@
+import '../../core/cache/last_seen_service.dart';
 import '../../domain/models/error.dart';
 import '../models/error_api_model.dart';
 import '../services/supabase_service.dart';
 
 /// Repository — single source of truth (skill: Data Layer).
 /// Трансформирует API-модели в доменные, кэширует last_seen_id, дедуплицирует по id.
+/// last_seen_id персистится в LastSeenService (SharedPreferences) — переживает оффлайн/рестарт.
 class ErrorsRepository {
-  ErrorsRepository({required SupabaseService service}) : _service = service;
+  ErrorsRepository({required SupabaseService service, LastSeenService? cache}) : _service = service, _cacheService = cache;
   final SupabaseService _service;
+  final LastSeenService? _cacheService;
 
-  // in-memory кэш (для хива/drift можно заменить)
+  // in-memory кэш
   final Map<String, ErrorEntry> _cache = {};
   String? _lastSeenId;
 
@@ -27,17 +30,23 @@ class ErrorsRepository {
       );
 
   Future<List<ErrorEntry>> getErrors({required String base, String? level}) async {
+    // пробуем подгрузить last_seen из персиста если в памяти пусто
+    _lastSeenId ??= _cacheService?.getLastSeenId(base);
     final apis = await _service.fetchErrors(base: base, level: level);
     final domains = apis.map(_toDomain).toList();
     for (final e in domains) {
       _cache[e.id] = e; // дедупликация
     }
-    if (domains.isNotEmpty) _lastSeenId = domains.first.id;
+    if (domains.isNotEmpty) {
+      _lastSeenId = domains.first.id;
+      await _cacheService?.setLastSeenId(base, _lastSeenId!);
+    }
     return domains;
   }
 
   /// Подписка Realtime — возвращает cancel функцию
   Future<void Function()> subscribe(String base, void Function(ErrorEntry) onNew) async {
+    _lastSeenId ??= _cacheService?.getLastSeenId(base);
     final channel = _service.subscribeErrors(
       base: base,
       onInsert: (api) {
@@ -45,6 +54,7 @@ class ErrorsRepository {
         final entry = _toDomain(api);
         _cache[entry.id] = entry;
         _lastSeenId = entry.id;
+        _cacheService?.setLastSeenId(base, entry.id); // fire-and-forget
         onNew(entry);
       },
     );

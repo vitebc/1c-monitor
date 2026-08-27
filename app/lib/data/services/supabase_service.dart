@@ -79,4 +79,10 @@ class SupabaseService {
     if (userId == null) return;
     await _client.from('user_bases').insert({'user_id': userId, 'base': base});
   }
+
+  Future<void> removeBase(String base) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return;
+    await _client.from('user_bases').delete().eq('user_id', userId).eq('base', base);
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../domain/models/error.dart';
+import '../../settings/view_models/settings_view_model.dart';
 import '../view_models/errors_view_model.dart';
 import '../widgets/error_detail.dart';
 
@@ -20,14 +21,54 @@ class ErrorsView extends StatefulWidget {
 
 class _ErrorsViewState extends State<ErrorsView> {
   String? _selectedId; // UI-state (skill: Views держат только UI-логику)
+  bool _basesInit = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_basesInit) {
+      _basesInit = true;
+      final settingsVm = context.read<SettingsViewModel>();
+      final errorsVm = context.read<ErrorsViewModel>();
+      // грузим базы если пусто
+      if (settingsVm.bases.isEmpty && !settingsVm.isLoading) {
+        settingsVm.load().then((_) {
+          if (!mounted) return;
+          final bases = context.read<SettingsViewModel>().bases;
+          if (bases.isNotEmpty && !bases.contains(errorsVm.selectedBase)) {
+            errorsVm.setBase(bases.first);
+          }
+        });
+      } else if (settingsVm.bases.isNotEmpty && !settingsVm.bases.contains(errorsVm.selectedBase)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          errorsVm.setBase(settingsVm.bases.first);
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<ErrorsViewModel>();
+    final settingsVm = context.watch<SettingsViewModel>();
 
+    final bases = settingsVm.bases;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ошибки — ${vm.selectedBase}'),
+        title: bases.isEmpty
+            ? const Text('Ошибки')
+            : DropdownButton<String>(
+                value: bases.contains(vm.selectedBase) ? vm.selectedBase : null,
+                hint: const Text('Выбери базу'),
+                underline: const SizedBox.shrink(),
+                items: bases.map((b) => DropdownMenuItem(value: b, child: Text(b))).toList(),
+                onChanged: (v) {
+                  if (v != null) {
+                    setState(() => _selectedId = null);
+                    vm.setBase(v);
+                  }
+                },
+              ),
         actions: [
           if (vm.unreadCount > 0)
             Padding(
@@ -97,9 +138,22 @@ class _ErrorsViewState extends State<ErrorsView> {
   }
 
   Widget _buildList(BuildContext context, ErrorsViewModel vm, {required bool isLarge}) {
+    final settingsVm = context.watch<SettingsViewModel>();
     return AnimatedBuilder(
       animation: vm,
       builder: (context, _) {
+        if (settingsVm.bases.isEmpty && !settingsVm.isLoading) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Text('Нет подписок на базы'),
+                SizedBox(height: 8),
+                Text('Добавь базу в Настройках, чтобы видеть ошибки', textAlign: TextAlign.center),
+              ]),
+            ),
+          );
+        }
         if (vm.isLoading && vm.errors.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
