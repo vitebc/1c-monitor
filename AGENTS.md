@@ -23,16 +23,17 @@
 3. Клиент: `firebase_messaging` в фоне + `flutter_local_notifications` для локального показа + бейдж непрочитанных. Fallback когда FCM недоступен (десктоп/энергосбережение): Supabase Realtime WebSocket при открытом приложении — без задержки.
 4. Обязательно: дедупликация по `errors.id`, экспоненциальный бэк-офф при оффлайне, хранение `last_seen_id` локально (hive/flutter_secure_storage + drift/sqlite).
 
-## Структура (создай при старте)
+## Структура
 
 ```
 1c-monitor/
-├── app/                 # Flutter
-│   └── lib/features/errors/{data,domain,presentation}/ + core/notifications/
+├── app/                 # Flutter MVVM (lib/data/domain/ui + core/cache/notifications)
 ├── supabase/
-│   ├── migrations/      # SQL миграции (errors, profiles/device_tokens)
-│   └── functions/watcher/ # Deno Edge Function: Realtime → FCM
-└── scripts/
+│   ├── migrations/      # errors (6 полей ТЗ) + profiles/user_bases/device_tokens + RLS
+│   ├── seed.sql
+│   └── functions/watcher/ # Deno Edge Function + test.ts (мок FCM)
+├── scripts/             # insert_error_curl.sh + insert_error_1c.bsl
+└── .github/workflows/ci.yml
 ```
 
 ## Команды
