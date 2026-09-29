@@ -26,7 +26,7 @@ supabase functions deploy watcher --no-verify-jwt
 cd app
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
-flutter run --dart-define=SUPABASE_URL=http://localhost:54321 --dart-define=SUPABASE_ANON_KEY=xxx -d android
+flutter run --dart-define=SUPABASE_URL=http://localhost:54321 --dart-define=SUPABASE_ANON_KEY=<PUBLISHABLE_KEY> -d android
 flutter test
 ```
 
@@ -63,9 +63,11 @@ CI: `.github/workflows/ci.yml` — flutter analyze/test + supabase lint + deno t
 
 ```bash
 SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>
-SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>
+SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>          # anon — для приложения
+SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>  # только для watcher/curl, в app не нужен
 ```
+
+Получить реальные значения: `supabase status` (после `supabase start`).
 
 - `publishable` = `anon` — для приложения (`flutter run --dart-define=...`)
 - `secret` = `service_role` — только для `watcher`/`curl`/админки, **не** в приложение

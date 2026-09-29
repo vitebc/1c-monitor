@@ -54,11 +54,11 @@ SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY> # только для watcher/curl,
 
 В приложении прокидывай через `--dart-define` (не коммить в репу):
 ```powershell
-flutter run --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=sb_publishable_...
+flutter run --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>
 ```
 Или создай `app/.env` / `dart_defines.json`:
 ```json
-{"SUPABASE_URL":"http://127.0.0.1:54321","SUPABASE_ANON_KEY":"sb_publishable_..."}
+{"SUPABASE_URL":"http://127.0.0.1:54321","SUPABASE_ANON_KEY":"<PUBLISHABLE_KEY>"}
 ```
 ```powershell
 flutter run --dart-define-from-file=dart_defines.json
@@ -94,10 +94,10 @@ flutter test     # 8 passed
 cd app
 
 # Debug (с hot-reload)
-flutter run -d windows --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=sb_publishable_...
+flutter run -d windows --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>
 
 # Release (для раздачи)
-flutter build windows --release --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=sb_publishable_...
+flutter build windows --release --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>
 
 # Артефакт: build\windows\x64\runner\Release\monitor_1c.exe (+ .dll)
 # Упаковка в инсталлер (опционально): используй Inno Setup или `msix`:
@@ -109,7 +109,7 @@ flutter build windows --release
 **Частые косяки:**
 - `atlbase.h: No such file or directory` → поставь `C++ ATL для v143/v144` в Visual Studio Installer, перезагрузись
 - `Building with plugins requires symlink support` → включи Developer Mode + перезапусти PowerShell
-- `MSVC not found` → доустанови `Desktop development with C++` в Visual Studio Installer
+- `MSVC not found` → доустанови `Desktop development with C++` in Visual Studio Installer
 - `supabase` не доступен на `127.0.0.1:54321` → проверь `supabase status` и туннель
 
 ---
@@ -142,7 +142,7 @@ cd app
 flutter run -d android --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
 
 # Release APK (для теста на устройстве)
-flutter build apk --release --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=sb_publishable_... --dart-define=SUPABASE_SERVICE_ROLE_KEY=sb_secret_...
+flutter build apk --release --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=<PUBLISHABLE_KEY> --dart-define=SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>
 # → build\app\outputs\flutter-apk\app-release.apk
 
 # Release AAB (для Play Console)
@@ -169,7 +169,7 @@ cd ios && pod install && cd ..
 
 # Debug на симуляторе
 open -a Simulator
-flutter run -d ios --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=sb_publishable_...
+flutter run -d ios --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>
 
 # Release IPA (для TestFlight / App Store)
 flutter build ipa --release --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=... --export-options-plist=ios/Runner/ExportOptions.plist
@@ -180,7 +180,7 @@ open ios/Runner.xcworkspace
 # Product → Archive → Distribute App
 ```
 
-**FCM на iOS:** добавь `ios/Runner/GoogleService-Info.plist`, включи `Push Notifications` + `Background Modes → Remote notifications` в `Xcode → Signing & Capabilities`, загрузи `APNs Auth Key` в Firebase Console.
+**FCM на iOS:** добавй `ios/Runner/GoogleService-Info.plist`, включи `Push Notifications` + `Background Modes → Remote notifications` в `Xcode → Signing & Capabilities`, загрузи `APNs Auth Key` в Firebase Console.
 
 **Сборка iOS с Windows невозможна** — нужен Mac или `codemagic.io` / `GitHub Actions macos-latest`.
 
@@ -193,7 +193,7 @@ open ios/Runner.xcworkspace
 ```bash
 # На Mac:
 cd app
-flutter build macos --release --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=sb_publishable_...
+flutter build macos --release --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>
 # → build/macos/Build/Products/Release/monitor_1c.app
 
 # Подпись (если есть Apple Developer):
@@ -233,13 +233,13 @@ version: 0.1.0+1  # 0.1.0 — versionName/CFBundle, +1 — buildNumber/versionCo
 
 ```bash
 # Android: установи APK/AAB, залогинься, подпишись на DEMO, вставь ошибку:
-curl -X POST https://xxx.supabase.co/rest/v1/errors -H "apikey: sb_secret_..." -H "Authorization: Bearer sb_secret_..." -H "Content-Type: application/json; charset=utf-8" -d '{"event_name":"ОшибкаПроведения","level":"Ошибка","metadata_object":"Документ.Заказ","data":{"doc_id":"РТ-0001"},"comment_text":"тест","base":"DEMO"}'
+curl -X POST https://xxx.supabase.co/rest/v1/errors -H "apikey: <SERVICE_ROLE_KEY>" -H "Authorization: Bearer <SERVICE_ROLE_KEY>" -H "Content-Type: application/json; charset=utf-8" -d '{"event_name":"ОшибкаПроведения","level":"Ошибка","metadata_object":"Документ.Заказ","data":{"doc_id":"РТ-0001"},"comment_text":"тест","base":"DEMO"}'
 # → должна прилететь в список + пуш (если Firebase настроен)
 
 # Windows/macOS: то же, но через Realtime — открой два окна приложения, в одном вставь ошибку, в другом должна появиться без pull-to-refresh
 ```
 
-**Важно:** `anon` (`sb_publishable_...`) не может INSERT — RLS режет `42501`. Используй `service_role` (`sb_secret_...`) для вставки извне.
+**Важно:** `anon` (`<PUBLISHABLE_KEY>`) не может INSERT — RLS режет `42501`. Используй `service_role` (`<SERVICE_ROLE_KEY>`) для вставки извне.
 
 ---
 

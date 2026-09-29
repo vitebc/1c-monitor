@@ -57,9 +57,11 @@ supabase gen types --local --lang typescript  # после изменения с
 
 ```
 SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>  # anon — для приложения
+SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>          # anon — для приложения
 SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>  # service_role — только для watcher/curl
 ```
+
+Получить реальные значения: `supabase status` (после `supabase start`). Не коммить реальные ключи — GitHub push protection блокирует.
 
 - `publishable` = `anon` — для `flutter run --dart-define=...`
 - `secret` = `service_role` — только для `watcher`/`curl`/админки, **не** в приложение
