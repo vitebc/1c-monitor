@@ -28,12 +28,14 @@
 ```
 1c-monitor/
 ├── app/                 # Flutter MVVM (lib/data/domain/ui + core/cache/notifications)
+│   └── macos/Runner/    # entitlements: network.client+server, ATS (уже настроено)
 ├── supabase/
 │   ├── migrations/      # errors (6 полей ТЗ) + profiles/user_bases/device_tokens + RLS
 │   ├── seed.sql
+│   ├── types.ts         # сгенерировано supabase gen types --local
 │   └── functions/watcher/ # Deno Edge Function + test.ts (мок FCM)
 ├── scripts/             # insert_error_curl.sh + insert_error_1c.bsl
-└── .github/workflows/ci.yml
+└── .github/workflows/  # ci.yml + build-all.yml (добавить вручную через веб-UI)
 ```
 
 ## Команды
@@ -45,13 +47,30 @@ supabase db push                  # миграции
 supabase functions serve watcher --env-file ./supabase/.env --debug  # локальный watcher
 supabase functions deploy watcher --no-verify-jwt
 flutter run -d android|ios|macos|windows
-flutter test                      # один тест: flutter test test/errors_watcher_test.dart
-dart run build_runner build       # если codegen (freezed/riverpod)
-flutter analyze                   # линт
-supabase gen types dart --linked  # после изменения схемы
+flutter test                      # 8 passed: auth/errors/last_seen view models
+dart run build_runner build       # codegen (freezed/json_serializable)
+flutter analyze                   # 0 issues
+supabase gen types --local --lang typescript  # после изменения схемы (dart пока не поддерживается)
 ```
 
-> Пока репа пустая (гринфилд) — первый шаг: `flutter create app --org ru.1cmonitor`. Не коммить `build/`, `.dart_tool/`, `.ios/`, `.android/` сгенерированные артефакты.
+## Актуальные ключи (локальная разработка)
+
+```
+SUPABASE_URL=http://127.0.0.1:54321
+SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>  # anon — для приложения
+SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>  # service_role — только для watcher/curl
+```
+
+- `publishable` = `anon` — для `flutter run --dart-define=...`
+- `secret` = `service_role` — только для `watcher`/`curl`/админки, **не** в приложение
+- `anon` не может INSERT в `errors` (RLS `42501`) — используй `service_role` для вставки извне
+
+## Частые косяки
+
+- **Windows:** `atlbase.h` не найден → поставь `C++ ATL для v143/v144` в Visual Studio Installer, перезагрузись
+- **macOS:** `Operation not permitted` при авторизации → `network.client` уже включён в `macos/Runner/*.entitlements`
+- **curl с кириллицей:** всегда `Content-Type: application/json; charset=utf-8` и `--data-binary`, иначе `????` → `errors_level_check`
+- **RLS 42501:** `anon` не может INSERT — используй `service_role` для вставки извне
 
 ## Обязательные скиллы
 

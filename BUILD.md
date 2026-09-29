@@ -18,7 +18,8 @@ start ms-settings:developers  # Включить "Режим разработч�
 ```
 
 ### Windows
-- **Visual Studio 2022** (Community ок) с `Desktop development with C++` (включает `MSVC`, `Windows 10/11 SDK`, `CMake`, `Ninja`)
+- **Visual Studio 2022/Build Tools 2026** с `Desktop development with C++` (включает `MSVC`, `Windows 10/11 SDK`, `CMake`, `Ninja`)
+- **Обязательно:** `C++ ATL для последних инструментов сборки v143 и v144 (x86 и x64)` — без него `flutter_local_notifications_windows` падает с `atlbase.h: No such file or directory`
 - Проверка: `flutter doctor` → `[√] Visual Studio`
 - Если `clang`/`ninja` не найден: `winget install Kitware.CMake; winget install Ninja-build.Ninja`
 
@@ -48,7 +49,7 @@ docker --version   # нужен Docker Desktop (WSL2)
 ```
 SUPABASE_URL=http://127.0.0.1:54321
 SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>
-SUPABASE_SERVICE_ROLE_KEY=sb_secret_... # только для watcher/curl, в app не нужен
+SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY> # только для watcher/curl, в app не нужен
 ```
 
 В приложении прокидывай через `--dart-define` (не коммить в репу):
@@ -106,6 +107,7 @@ flutter build windows --release
 ```
 
 **Частые косяки:**
+- `atlbase.h: No such file or directory` → поставь `C++ ATL для v143/v144` в Visual Studio Installer, перезагрузись
 - `Building with plugins requires symlink support` → включи Developer Mode + перезапусти PowerShell
 - `MSVC not found` → доустанови `Desktop development with C++` в Visual Studio Installer
 - `supabase` не доступен на `127.0.0.1:54321` → проверь `supabase status` и туннель
@@ -203,7 +205,7 @@ flutter build macos --release --dart-define=SUPABASE_URL=https://xxx.supabase.co
 # create-dmg build/macos/Build/Products/Release/monitor_1c.app
 ```
 
-Entitlements уже в `macos/Runner/Release.entitlements` (сеть). Если нужен `sandbox` off для Supabase — оставь `com.apple.security.network.client = true`.
+**Entitlements:** `macos/Runner/DebugProfile.entitlements` и `Release.entitlements` уже содержат `com.apple.security.network.client` + `network.server` — без них `Supabase auth` падает с `Operation not permitted` в sandbox. `Info.plist` содержит `NSAllowsArbitraryLoads` для `http://127.0.0.1`.
 
 ---
 
@@ -231,11 +233,13 @@ version: 0.1.0+1  # 0.1.0 — versionName/CFBundle, +1 — buildNumber/versionCo
 
 ```bash
 # Android: установи APK/AAB, залогинься, подпишись на DEMO, вставь ошибку:
-curl -X POST https://xxx.supabase.co/rest/v1/errors -H "apikey: sb_secret_..." -H "Authorization: Bearer sb_secret_..." -H "Content-Type: application/json" -d '{"event_name":"ОшибкаПроведения","level":"Ошибка","metadata_object":"Документ.Заказ","data":{"doc_id":"РТ-0001"},"comment_text":"тест","base":"DEMO"}'
+curl -X POST https://xxx.supabase.co/rest/v1/errors -H "apikey: sb_secret_..." -H "Authorization: Bearer sb_secret_..." -H "Content-Type: application/json; charset=utf-8" -d '{"event_name":"ОшибкаПроведения","level":"Ошибка","metadata_object":"Документ.Заказ","data":{"doc_id":"РТ-0001"},"comment_text":"тест","base":"DEMO"}'
 # → должна прилететь в список + пуш (если Firebase настроен)
 
 # Windows/macOS: то же, но через Realtime — открой два окна приложения, в одном вставь ошибку, в другом должна появиться без pull-to-refresh
 ```
+
+**Важно:** `anon` (`sb_publishable_...`) не может INSERT — RLS режет `42501`. Используй `service_role` (`sb_secret_...`) для вставки извне.
 
 ---
 

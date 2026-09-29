@@ -58,3 +58,21 @@ deno test --allow-env supabase/functions/watcher/test.ts  # мок FCM, деду
 ```
 
 CI: `.github/workflows/ci.yml` — flutter analyze/test + supabase lint + deno test.
+
+## Актуальные ключи (локальная разработка)
+
+```bash
+SUPABASE_URL=http://127.0.0.1:54321
+SUPABASE_ANON_KEY=<PUBLISHABLE_KEY>
+SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY>
+```
+
+- `publishable` = `anon` — для приложения (`flutter run --dart-define=...`)
+- `secret` = `service_role` — только для `watcher`/`curl`/админки, **не** в приложение
+
+## Частые косяки
+
+- **Windows:** `atlbase.h` не найден → поставь `C++ ATL для v143/v144` в Visual Studio Installer
+- **macOS:** `Operation not permitted` при авторизации → `network.client` уже включён в `macos/Runner/*.entitlements`
+- **curl с кириллицей:** всегда `Content-Type: application/json; charset=utf-8` и `--data-binary`, иначе `????` → `errors_level_check`
+- **RLS 42501:** `anon` не может INSERT — используй `service_role` для вставки извне
